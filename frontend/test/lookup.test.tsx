@@ -1,0 +1,3 @@
+import { describe, expect, it, vi } from "vitest";
+import { lookup } from "../src/api/rojClient";
+describe("ROJ client", () => { it("sends only documented headers and request fields", async () => { const fetchMock = vi.fn().mockResolvedValue({ status: 200, json: async () => ({ data: null, meta: { correlationId: "c" } }) }); vi.stubGlobal("fetch", fetchMock); await lookup(" VIN ", "RO_OPEN", "secret"); const options = fetchMock.mock.calls[0][1]; expect(JSON.parse(options.body)).toEqual({ VIN: "VIN", PARAM_1: "RO_OPEN", SOURCE: "COMPASS" }); expect(options.headers["x-api-key"]).toBe("secret"); expect(options.headers.Accept).toBe("application/json"); vi.unstubAllGlobals(); }); });

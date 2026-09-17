@@ -1,0 +1,11 @@
+import request from "supertest";
+import { describe, expect, it } from "vitest";
+import { createApp } from "../src/app";
+import type { LookupService } from "../src/domain/contracts";
+const config = { port: 8000, maxRequestBytes: 256, apiKeys: ["valid-key"], allowedOrigins: ["http://localhost:5173"] };
+function appFor(service: LookupService) { return createApp({ config, lookupService: service }); }
+describe("secure lookup gateway", () => {
+ it("rejects missing keys before the service and gives correlation metadata", async () => { let calls = 0; const response = await request(appFor({ async execute() { calls++; return { kind: "no_result" }; } })).post("/api/csms/getROJInfo").set("Content-Type", "application/json").set("Accept", "application/json").send({ VIN: "VIN1", PARAM_1: "RO_OPEN", SOURCE: "COMPASS" }); expect(response.status).toBe(401); expect(response.body.error.code).toBe("MISSING_API_KEY"); expect(response.headers["x-correlation-id"]).toBeTruthy(); expect(calls).toBe(0); });
+ it("rejects invalid media and closed-schema extras before lookup", async () => { let calls = 0; const app = appFor({ async execute() { calls++; return { kind: "no_result" }; } }); const media = await request(app).post("/api/csms/getROJInfo").set("x-api-key", "valid-key").set("Accept", "application/json").send("plain"); const extra = await request(app).post("/api/csms/getROJInfo").set("x-api-key", "valid-key").set("Accept", "application/json").set("Content-Type", "application/json").send({ VIN: "VIN1", PARAM_1: "RO_OPEN", SOURCE: "COMPASS", leak: true }); expect(media.status).toBe(400); expect(extra.status).toBe(400); expect(extra.body.error.message).not.toContain("leak"); expect(calls).toBe(0); });
+ it("accepts a closed valid command and trims the VIN before the service", async () => { let received = ""; const response = await request(appFor({ async execute(command) { received = command.vin; return { kind: "no_result" }; } })).post("/api/csms/getROJInfo").set("x-api-key", "valid-key").set("Accept", "application/json").set("Content-Type", "application/json").send({ VIN: " VIN1 ", PARAM_1: "RO_CLOSE", SOURCE: "COMPASS" }); expect(response.status).toBe(200); expect(response.body.data).toBeNull(); expect(received).toBe("VIN1"); });
+});

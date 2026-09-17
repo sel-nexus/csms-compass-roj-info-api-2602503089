@@ -1,0 +1,3 @@
+import type { ApiFailure, ApiSuccess, Scenario } from "../types";
+/** Calls only the documented backend endpoint and never persists credentials. */
+export async function lookup(vin: string, scenario: Scenario, apiKey: string): Promise<{ status: number; body: ApiSuccess | ApiFailure }> { const response = await fetch(`${import.meta.env.VITE_API_BASE_URL ?? ""}/api/csms/getROJInfo`, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json", "x-api-key": apiKey }, body: JSON.stringify({ VIN: vin.trim(), PARAM_1: scenario, SOURCE: "COMPASS" }) }); return { status: response.status, body: await response.json() as ApiSuccess | ApiFailure }; }

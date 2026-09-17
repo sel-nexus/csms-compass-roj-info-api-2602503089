@@ -1,0 +1,5 @@
+import type { RequestHandler } from "express";
+import type { LookupService } from "../domain/contracts";
+import { safeError } from "../middleware/gates";
+/** Converts classified lookup results into the documented HTTP envelope. */
+export function createRojController(service: LookupService): RequestHandler { return async (_req, res) => { try { const result = await service.execute(res.locals.command); if (result.kind === "data") return void res.status(200).json({ data: result.data, meta: { correlationId: res.locals.correlationId } }); if (result.kind === "no_result") return void res.status(200).json({ data: null, meta: { correlationId: res.locals.correlationId, outcome: "no_result" } }); if (result.kind === "application_failure") return safeError(res, 500, "INTERNAL_ERROR", "Try a new lookup later."); return safeError(res, result.category === "bad_response" || result.category === "timeout" ? 502 : 503, result.category === "bad_response" || result.category === "timeout" ? "UPSTREAM_UNAVAILABLE" : "SERVICE_UNAVAILABLE", "Try a new lookup later.", true); } catch { safeError(res, 500, "INTERNAL_ERROR", "Try a new lookup later."); } }; }
