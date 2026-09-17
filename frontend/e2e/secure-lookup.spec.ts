@@ -1,2 +1,3 @@
 import { expect, test } from "@playwright/test";
-test("operator can correct client-side invalid lookup without a network request", async ({ page }) => { await page.goto("/"); await page.getByRole("button", { name: "Look up journey" }).click(); await expect(page.getByText("VIN is required")).toBeVisible(); });
+/** Proves client validation prevents an invalid lookup without browser errors. */
+test("operator can correct client-side invalid lookup without a network request", async ({ page }) => { const errors: string[] = []; page.on("pageerror", error => errors.push(error.message)); page.on("console", message => { if (message.type() === "error") errors.push(message.text()); }); await page.goto("/"); await page.getByRole("button", { name: "Look up journey" }).click(); await expect(page.getByText("VIN is required")).toBeVisible(); expect(errors).toEqual([]); });

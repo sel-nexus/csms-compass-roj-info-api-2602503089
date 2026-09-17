@@ -1,0 +1,3 @@
+import { createServer } from "http";
+/** Provides deterministic Compass outcomes for fullstack browser verification. */
+createServer(async (request, response) => { let raw = ""; for await (const chunk of request) raw += chunk; const body = JSON.parse(raw || "{}"); if (body.vin === "NORESULT") { response.writeHead(404).end(); return; } if (body.vin === "DELAY") await new Promise(resolve => setTimeout(resolve, 1000)); response.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ VIN: body.vin, dealer: "Compass Test Dealer", roOpenDate: "2026-09-02", roCloseDate: "2026-09-10", secretDiagnostic: "never map" })); }).listen(9000, "127.0.0.1");
