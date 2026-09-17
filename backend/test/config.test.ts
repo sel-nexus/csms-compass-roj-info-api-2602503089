@@ -1,0 +1,4 @@
+import { describe, expect, it } from "vitest";
+import { loadConfig } from "../src/config";
+/** Verifies runtime settings fail closed outside explicitly bounded test mode. */
+describe("runtime configuration", () => { it("rejects missing credentials and non-HTTPS stage Compass URLs", () => { expect(() => loadConfig({ NODE_ENV: "stage", CLIENT_API_KEYS: "key", COMPASS_BASE_URL: "http://compass.local", COMPASS_CREDENTIAL: "" })).toThrow("Invalid runtime configuration"); }); it("allows an explicit test fixture endpoint without weakening stage policy", () => { expect(loadConfig({ NODE_ENV: "test", CLIENT_API_KEYS: "key", COMPASS_BASE_URL: "http://127.0.0.1:9000", COMPASS_CREDENTIAL: "fixture" }).nodeEnv).toBe("test"); }); });

@@ -2,8 +2,11 @@ services:
   backend:
     build: ./backend
     environment:
+      NODE_ENV: stage
       PORT: 8000
       CLIENT_API_KEYS: dev-operator-key
+      COMPASS_BASE_URL: https://compass.example.invalid
+      COMPASS_CREDENTIAL: dev-compass-credential
     ports: ["8000:8000"]
   frontend:
     build: ./frontend

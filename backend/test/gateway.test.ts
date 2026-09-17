@@ -2,7 +2,7 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/app";
 import type { LookupService } from "../src/domain/contracts";
-const config = { port: 8000, maxRequestBytes: 256, apiKeys: ["valid-key"], allowedOrigins: ["http://localhost:5173"] };
+const config = { port: 8000, maxRequestBytes: 256, apiKeys: ["valid-key"], allowedOrigins: ["http://localhost:5173"], compassBaseUrl: "http://127.0.0.1:9000", compassCredential: "test", nodeEnv: "test" as const };
 function appFor(service: LookupService) { return createApp({ config, lookupService: service }); }
 describe("secure lookup gateway", () => {
  it("rejects missing keys before the service and gives correlation metadata", async () => { let calls = 0; const response = await request(appFor({ async execute() { calls++; return { kind: "no_result" }; } })).post("/api/csms/getROJInfo").set("Content-Type", "application/json").set("Accept", "application/json").send({ VIN: "VIN1", PARAM_1: "RO_OPEN", SOURCE: "COMPASS" }); expect(response.status).toBe(401); expect(response.body.error.code).toBe("MISSING_API_KEY"); expect(response.headers["x-correlation-id"]).toBeTruthy(); expect(calls).toBe(0); });
