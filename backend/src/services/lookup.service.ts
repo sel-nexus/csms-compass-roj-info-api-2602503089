@@ -1,0 +1,3 @@
+import type { CompassAdapter, LookupOutcome, LookupService, ValidatedLookupCommand } from "../domain/contracts";
+/** Delegates validated requests to the Compass boundary and contains unexpected faults. */
+export class LookupServiceImpl implements LookupService { constructor(private readonly adapter: CompassAdapter) {} async execute(command: ValidatedLookupCommand): Promise<LookupOutcome> { try { return await this.adapter.lookup(command); } catch { return {kind:"application_failure"}; } } }

@@ -1,0 +1,2 @@
+import type React from "react"; import type { JourneyData } from "../types";
+/** Renders only approved journey values as a read-only definition list. */ export const DetailsView:React.FC<{journey:JourneyData;onNew:()=>void}>=({journey,onNew})=><main className="shell"><p className="kicker">JOURNEY DETAILS</p><h1>{journey.VIN ?? "Journey"}</h1><dl>{Object.entries(journey).map(([key,value])=><div key={key}><dt>{key}</dt><dd>{String(value ?? "—")}</dd></div>)}</dl><button onClick={onNew}>New lookup</button></main>;

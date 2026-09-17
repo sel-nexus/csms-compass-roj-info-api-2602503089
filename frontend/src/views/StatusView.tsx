@@ -1,0 +1,1 @@
+import type React from "react"; /** Renders non-data outcomes with prescribed safe recovery. */ export const StatusView:React.FC<{message:string;onNew:()=>void}>=({message,onNew})=><main className="shell"><p className="kicker">REQUEST STATUS</p><h1>Lookup needs attention</h1><p>{message}</p><button onClick={onNew}>New lookup</button></main>;
