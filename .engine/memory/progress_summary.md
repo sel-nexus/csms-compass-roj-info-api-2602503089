@@ -1,1 +1,0 @@
-Implementing secure-request-gateway. Files: backend and frontend scaffolds, ingress, lookup form/tests. Verify: cd backend && node node_modules/vitest/vitest.mjs run test/gateway.test.ts
