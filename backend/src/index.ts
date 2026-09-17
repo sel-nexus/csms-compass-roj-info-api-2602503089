@@ -1,7 +1,8 @@
 import { createApp } from "./app";
+import { CompassAdapterImpl } from "./adapters/compass.adapter";
 import { loadConfig } from "./config";
-import type { LookupService } from "./domain/contracts";
-/** Provides a conservative startup service until the Compass adapter is wired. */
-const unavailableService: LookupService = { async execute() { return { kind: "dependency_failure", category: "unreachable" } as const; } };
+import { LookupServiceImpl } from "./services/lookup.service";
+/** Starts the API with a real Compass adapter assembled from runtime configuration. */
 const config = loadConfig();
-createApp({ config, lookupService: unavailableService }).listen(config.port, "0.0.0.0", () => console.log(`ROJ API listening on ${config.port}`));
+const lookupService = new LookupServiceImpl(new CompassAdapterImpl(config.compassBaseUrl, config.compassCredential));
+createApp({ config, lookupService }).listen(config.port, "0.0.0.0", () => console.log(`ROJ API listening on ${config.port}`));
